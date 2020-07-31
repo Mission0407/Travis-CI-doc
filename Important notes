@@ -1,0 +1,77 @@
+“You can set a more customized environment in Travis CI by using the sudo and dist fields in the YML script.”
+
+1. You can use Ubuntu Precise infrastructure by using the following entries in the Travis YML script:”
+
+“sudo: enabled
+dist: precise”
+
+2. To “set the default infrastructure”
+
+sudo: false
+
+
+3. You can use Ubuntu Trusty infrastructure by using the following entries in the Travis YML script:
+
+sudo: enabled
+dist: trusty”
+
+4. “You can use container based infrastructure by using the following entries in the Travis YML script:
+
+sudo: false
+dist: trusty”
+
+5. “You can use macOS infrastructure by using the following entry in the Travis YML script:
+
+os: osx”
+
+6. “The build life cycle”
+
+“Here is the complete life cycle for Travis CI:
+
+a. Optional install: apt addons
+b. Optional install: cache components
+c. before_install
+d. install
+e. before_script
+f. script
+g. Optional: before_cache
+h. after_success or after_failure
+i. before_deploy
+j. deploy
+k. after_deploy
+l. after_script”
+
+7. Build failure behavior
+
+If an error occurs in the before_install, install, or before_script life cycle events then the CI build will immediately error out and the CI build will stop.
+
+If an error occurs in the script life cycle event then the build will fail but the CI build will continue to run.
+
+If an error occurs in the after_success, after_failure, after_script, and after_deploy life cycle events then the build will not be marked as a failure but if any of these life cycle events results in a timeout then the build will be marked as a failure.”
+
+8. “You can easily install another programming language in the CI build by adding an entry into the before_install life cycle event. It is best to specify your primary language and then a secondary language.”
+
+Example:
+“In the Travis CI YML script here, we specify Go version 1.10 as the primary programming language and then Node.js as the secondary language. We install Node.js dependencies in the before_install life cycle event and then we run a Golang test followed by a Node.js test:
+
+language: go
+
+go: 
+    - "1.10"
+
+env:
+    - NODE_VERSION="6"
+
+before_install:
+    - nvm install $NODE_VERSION
+
+install:
+    - npm install
+
+script:
+    - go test
+    - npm test
+
+If you would like to further explore this example, then check out the multiple-languages repository (https://github.com/packtci/multiple-languages).”
+
+9. 
