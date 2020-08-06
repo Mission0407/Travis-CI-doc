@@ -75,3 +75,70 @@ script:
 If you would like to further explore this example, then check out the multiple-languages repository (https://github.com/packtci/multiple-languages).”
 
 9. 
+“Docker can be utilized in Travis CI and the only step required to enable Docker is to add the following entry into your Travis CI YML script:
+
+sudo: required
+
+services:
+    - docker”
+ 
+ “Example Travis CI YML script with a Dockerfile”
+ 
+ “In the Travis YML script here, we are specifying sudo privileges, a programming language of Golang, then we are specifying the Docker service, pulling down a custom Docker image of jbelmont/print-average:1.0 and then running the Docker container and removing it:
+
+sudo: required
+
+language: go
+
+services:
+  - docker
+
+before_install:
+  - docker pull jbelmont/print-average:1.0
+
+script:
+  - docker run --rm jbelmont/print-average:1.0”
+
+
+Example 2:
+
+“language: node_js
+
+node_js:
+ - "8.11"
+
+dist: trusty
+
+sudo: false
+
+addons:
+ chrome: stable
+
+before_install:
+ - google-chrome-stable --headless --disable-gpu --remote-debugging-port=9222 http://localhost &
+
+cache:
+ directories:
+ - node_modules
+
+install:
+ - npm install
+
+script:
+ - npm test”
+
+“In the Travis YML script here, we have set a number of different actions in the Travis CI build. First, we set the language to node_js, then we set the version of node_js to 8.11, then we set a new property called dist: trusty which set the Travis CI environment to Ubuntu 14.04, which is called Trusty. We then use the add-ons block to add the latest stable Chrome version. We then get the stable version of Google Chrome running on the CI build on port 9222, and then we use the cache block so that node_modules is cached on each CI build run. Then we install our Node.js dependencies and finally we run the Node.js tests using the Jest library:”
+
+Note: you can find the source code for this repository at https://github.com/packtci/puppeteer-headless-chrome-travis-yml-script and at GitHub.”
+
+“Questions
+
+What is the primary difference between Jenkins and Travis CI?
+Can Travis CI work in Bitbucket?
+How do you add new repositories to Travis CI?
+What is a scalar variable in YAML?
+What is a list in YAML?
+Why are anchors useful in YAMl?
+Is it possible to use a secondary programming language in a Travis CI build?
+How would you use docker in a Travis CI build?”
+
