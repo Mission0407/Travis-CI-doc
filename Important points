@@ -142,3 +142,189 @@ Why are anchors useful in YAMl?
 Is it possible to use a secondary programming language in a Travis CI build?
 How would you use docker in a Travis CI build?”
 
+
+10. Travis CLI installation
+
+- “The first prerequisite to install Travis CLI is to have Ruby (https://www.ruby-lang.org/en/documentation/installation/) installed on your OS and make sure that it is version 1.9.3 or greater.”
+- “To check that you have Ruby installed , use command: ruby -v "
+- Windows installation 
+    - “install the latest version of Ruby on the Windows OS - Travis CLI user documentation at https://github.com/travis-ci/travis.rb#windows recommends that you use the RubyInstaller (http://rubyinstaller.org/)”
+    - “We need to pick Ruby Devkit version 2.5.1 at the RubyInstaller download site 
+    - Accept the license agreement
+    - Choose the appropriate options for the installation. 
+    - Make sure to install the development toolchain.”
+    - When the installer window closes, a Command Prompt will open and you will need to pick an option; you can just hit enter to install all three options on your system. 
+    - The installation process could take a while to finish. Mine took about 20 minutes to update GPG keys and to install other dependencies required for the Ruby programming language
+    - Install Travis RubyGems in the Windows Command Prompt - "gem install travis"
+    - In this last step, we verify that Travis CLI RubyGem is installed on our system; it reports version 1.8.8
+    
+- Linux installation
+    - To install Ruby on Ubuntu, run the following commands:
+        sudo apt-get install python-software-properties
+        sudo apt-add-repository ppa:brightbox/ruby-ng
+        sudo apt-get update
+        sudo apt-get install ruby2.1 ruby-switch
+        sudo ruby-switch --set ruby2.1”
+    - To check that you have Ruby installed , use command: ruby -v 
+    - Next we need to install the Travis CLI RubyGem with the following command: “gem install travis -v 1.8.8 --no-rdoc --no-ri
+    - The last step is to check that Travis CLI is installed with the following command: "travis version”
+  
+- macOS installation
+    - You need to install the Xcode Command Line tools, which you can do so with the following command: xcode-select --install”
+    - Ruby comes preinstalled on current macOS operating system, so you only need to run the following command to install Travis CLI: sudo gem install travis
+    - The last step is to check that Travis CLI is installed with the following command: "travis version”
+
+11. Travis CLI commands
+    - “Non-API commands:
+        - Non-API commands documentation (https://github.com/travis-ci/travis.rb#non-api-commands)
+        - These commands include help and version and do not directly hit the Travis CI API
+    - General API commands:
+        - General API commands documentation (https://github.com/travis-ci/travis.rb#general-api-commands)
+        - These commands directly hit the Travis API and inherit all options from the non-API commands
+    - Repository commands:
+        - Repository commands documentation (https://github.com/travis-ci/travis.rb#repository-commands)
+        - These commands have all the options that General API commands have and additionally you can specify the repo owner/name to talk to
+          The Travis CLI library is written in the Ruby programming language and if you want to directly interface with it, be prepared to read 
+          more about in the Ruby Library section at GitHub (https://github.com/travis-ci/travis.rb#ruby-library).”
+
+12. Logging in to Travis CI
+    - We run the travis login command and provide the GitHub username and password
+    - To display the current access token: travis token
+    - The logout command will log you out of Travis CI and remove your access token: travis logout
+    - To list all the accounts that you can set up repositories for: travis accounts
+    - we can find all the options for a particular command in Travis by running the following command:
+        - travis help
+        - travis help accounts
+        - travis accounts debug (“There is an option called --debug which we will use to debug the HTTP request made to the Travis API)
+        - travis console ( “The console command drops you into an interactive Ruby session with all the entities imported into global namespaces, as well as making sure that you are authenticated with Travis and if you are setting correct.”
+        - travis endpoint ( “The endpoint command prints out the API endpoint that we are using.”)
+        - travis monitor ( “The travis monitor command will conduct live monitoring for all the CI builds in the logged-in account.”)
+        - travis raw ( “You can initiate a direct API call to the Travis API by using the travis raw RESOURCE command. Remember that we can always use the travis help COMMAND to find out how to use a particular command in Travis CLI.”
+“You can then view the API documentation for Travis CI at the URL: https://developer.travis-ci.com/.”
+
+13. Travis CI API 
+- “At some point in the near future, the Travis API plans on deprecating the V2 API and only the V3 API will be officially supported. You can use the API Explorer to make REST calls into the V3 API:
+
+GET /owner/{owner.login}”
+
+- “API V3 REST call with curl”
+    - “We will issue the travis token command so that we can copy the access token to the system clipboard:
+
+travis token
+Next we will run the travis endpoint command and copy the URL:
+
+travis endpoint
+API endpoint: https://api.travis-ci.org/
+We will make a curl request in the following manner:
+
+curl -X GET \
+ -H "Content-Type: application/json" \
+ -H "Travis-API-Version: 3" \
+ -H "Authorization: token $(travis token)" \
+https://api.travis-ci.org/repos
+Notice that in this curl request we used the travis token cli command that will return a valid token for this particular HTTP Header. This HTTP request will return a JSON response payload which we will use to copy a particular repo ID to make the following REST call to find”
+
+“all the environment variables for the functional-summer repo (https://github.com/packtci/functional-summer):
+
+curl -X GET \
+ -H "Content-Type: application/json" \
+ -H "Travis-API-Version: 3" \
+ -H "Authorization: token $(travis token)" \
+https://api.travis-ci.org/repo/19721247/env_vars
+In this GET request, we get all the environment variables from the functional-summer repository and receive a JSON response like the following:
+
+{
+  "@type": "env_vars",
+  "@href": "/repo/19721247/env_vars",
+  "@representation": "standard",
+  "env_vars": [
+
+  ]
+}
+Let us make a POST request to add an environment variable to the functional-summer repo:
+
+curl -X POST \
+  -H "Content-Type: application/json" \
+  -H "Travis-API-Version: 3" \
+  -H "Authorization: token $(travis token)" \
+  -d '{ "env_var.name": "MOVIE", "env_var.value": "ROCKY", "env_var.public": false }' \
+  https://api.travis-ci.org/repo/19721247/env_vars
+Now when we make a GET request for the environment variables, we see that we have an environment variable called MOVIE that has been set:”
+
+“curl -X GET \
+ -H "Content-Type: application/json" \
+ -H "Travis-API-Version: 3" \
+ -H "Authorization: token $(travis token)" \
+https://api.travis-ci.org/repo/19721247/env_vars
+{
+ "@type": "env_vars",
+ "@href": "/repo/19721247/env_vars",
+ "@representation": "standard",
+ "env_vars": [
+ {
+ "@type": "env_var",
+ "@href": "/repo/19721247/env_var/1f64fa82-2cad-4270-abdc-13d70fa8faeb",
+ "@representation": "standard",
+ "@permissions": {
+ "read": true,
+ "write": true
+ },
+ "id": "1f64fa82-2cad-4270-abdc-13d70fa8faeb",
+ "name": "MOVIE",
+ "public": false
+ }
+ ]
+}”
+
+14. More commands
+
+- travis report : “The report command prints out important system configuration information,”
+- travis repos -m 'packtci/*' : “The repos command will list repositories whether they are active or not and has a variety of options that can be used. In the following screenshot, we used the -m option to match all the repositories for the packtci GitHub user:”
+- travis sync : “Initiating synchronization with Travis CI for any new or outdated repositories in GitHub”
+- travis lint .travis.yml : “The lint command is very useful as it checks that you have the proper syntax in your Travis YML script.”
+- travis whatsup : “The whatsup command lets you see activity that has recently occurred in Travis.” “you can have many users in a Travis CI account, and so it may be more useful to see only your repositories with the whatsup command.”
+- travis whoami: “The whoami command is useful to find out the currently logged-in user for Travis CI account:”
+- “Repository commands. The repository commands have all the options that the API commands have and additionally you can specify the specific repository that you want to work with using the --repo owner/name option.”
+    - travis braches : “Displaying the most recent build information for each branch in Git version control”
+    - travis cache : “Listing cache information for all the repositories”
+    - travis cache --delete : “The cache command can also delete the caches in the repository if you use the -d, --delete option. Command is used for Deleting cache information for a given repository”
+    - travis enable : “The enable command will activate Travis CI in your GitHub repository:”
+    - travis disable: “The disable command will make the Travis CI in your GitHub repository inactive”
+    - travis cancel 1: “the travis cancel command and provided an argument of 1, this cancells the latest build in Travis CI”
+    - travis encrypt SECRET_VALUE=supersecret12345 : “Encrypting environment variables or deployment keys”
+    - travis encrypt-file secret.txt : Encrypting a file
+    - travis env list : Listing environment information
+    - travis env set API_URL http://localhost:8078 : “Setting an environment variable”
+    - travis env unset API_URL : “Deleting an environment variable”
+    - travis env clear : “Clearing out all environment variables”
+    - travis history : “List history information for recent builds”
+    - travis init golang : “Initializing Travis CLI on a project. The init command will help you set up Travis CI in a project by generating a .travis.yml script for you. We have set up a new project in GitHub called travis-init-command (https://github.com/packtci/travis-init-command). We will use the init command to set up Golang in this repository”
+    - travis logs : “Printing out CI build log information”
+    - travis open : “Opening the Travis web interface for the project”
+    - travis pubkey : “Printing out public key information for the repository”
+    - travis pubkey --pem : “You can also display the key in different formats. For example, if you use the --pem option your key will display like this”
+    - travis help pubkey: “the travis help pubkey command to show more options”
+    - travis restart : “Restarting the latest CI build in Travis CI”
+    - travis requests: “Printing out current build requests in Travis CI”
+    - travis settings: “Printing out particular repository settings”. “the minus (-) means it is disabled while the plus (+) means it is enabled.”
+    - travis settings --enalbe (eg) build-only-with-travis-yml : “The travis settings command can also be used to enable, disable, and set settings:”
+    - travis setup sauce_connect : “Configuring Travis CI add-ons”
+    - travis show : “Displaying general information for the current CI build”
+    - travis show 1: “The first command, travis show, displayed the most recent build and in the next run we provided a specific build number.”
+    - travis sshkey: “Listing SSH key in Travis CI”
+    - travis status: “Displaying status information for the current build”
+    - travis login -- enterprise : “Option to display information for Enterprise version”
+
+15. “Travis CI options for Pro version and Enterprise version”
+- “By default, the general API commands hit the api.travis-ci.org endpoint. The Travis Pro version has some additional features and options that a regular Travis account does not have such as using the sshkey command and more. You can read more about the options in the user documentation (https://github.com/travis-ci/travis.rb#pro-and-enterprise).”
+- “If you use the --pro option with the general API command, then you will hit the Travis Pro endpoint at https://api.travis-ci.com/. So for example if we make the following request using the --pro option we will hit Travis Pro API:”
+    - travis raw /config --pro
+
+
+16. “Travis CI UI Logging and Debugging”
+
+- 
+
+
+
+
